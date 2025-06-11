@@ -68,6 +68,13 @@ namespace RobloxStudioModManager
             Enabled = false;
             UseWaitCursor = true;
 
+            if (args != null)
+            {
+                launchStudio_Click();
+                Hide();
+                return;
+            }
+            
             using (var http = new WebClient())
             {
                 var get = http.DownloadStringTaskAsync(Program.BaseConfigUrl + "LatestReleaseTag.txt");
@@ -91,9 +98,6 @@ namespace RobloxStudioModManager
                     Invoke(new Action<string>(promptNewRelease), releaseTag);
                 });
             }
-
-            if (args != null)
-                openStudioDirectory.Enabled = false;
 
             // Grab the version currently being targeted.
             string targetId = Program.State.TargetVersion;
@@ -361,11 +365,16 @@ namespace RobloxStudioModManager
         private async void launchStudio_Click(object sender = null, EventArgs e = null)
         {
             // var channel = getSelectedChannel();
+            var overrideGuid = "";
+
+            if (args != null && args.Length > 0 && args[0].StartsWith("version-"))
+                overrideGuid = args[0];
 
             var bootstrapper = new StudioBootstrapper
             {
                 ForceInstall = forceRebuild.Checked,
                 ApplyModManagerPatches = true,
+                OverrideGuid = overrideGuid,
                 Channel = channel
             };
 
